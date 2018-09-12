@@ -225,12 +225,18 @@ module Signet
         # Normalize all keys to symbols to allow indifferent access internally
         options = deep_hash_normalize(options)
 
+        expires_in_option = options[:expires] if options.has_key?(:expires)
+        expires_in_option = options[:expires_in] if options.has_key?(:expires_in)
+
         # By default, the token is issued at `Time.now` when `expires_in` is
         # set, but this can be used to supply a more precise time.
-        self.issued_at = options[:issued_at] if options.has_key?(:issued_at)
+        if options.has_key?(:issued_at)
+          self.issued_at = options[:issued_at]
+          send(:expires_in=, expires_in_option, self.issued_at) unless expires_in_option.nil?
+        else
+          self.expires_in = expires_in_option unless expires_in_option.nil?
+        end
 
-        self.expires_in = options[:expires] if options.has_key?(:expires)
-        self.expires_in = options[:expires_in] if options.has_key?(:expires_in)
         self.expires_at = options[:expires_at] if options.has_key?(:expires_at)
 
         self.access_token = options[:access_token] if options.has_key?(:access_token)
@@ -741,9 +747,11 @@ module Signet
       #
       # @param [String, Integer, nil] new_expires_in
       #   The access token lifetime.
-      def expires_in=(new_expires_in)
+      # @param [String,Integer,Time, nil] new_issued_at
+      #   The access token issuance time.
+      def expires_in=(new_expires_in, new_issued_at = nil)
         if new_expires_in != nil
-          @issued_at ||= Time.now
+          @issued_at = new_issued_at.nil? ? Time.now : normalize_timestamp(new_issued_at)
           @expires_at = @issued_at + new_expires_in.to_i
         else
           @expires_at, @issued_at = nil, nil

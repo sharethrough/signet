@@ -436,7 +436,7 @@ describe Signet::OAuth2::Client, 'configured for Google userinfo API' do
     expect(@client).to be_expired
   end
 
-  it 'should calculate the expires_at from issued_at when issued_at is set' do
+  it 'should calculate expires_at from issued_at when issued_at is set' do
     expires_in = 3600
     issued_at = Time.now - expires_in
     @client.update_token!(
