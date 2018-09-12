@@ -747,6 +747,8 @@ module Signet
       #
       # @param [String, Integer, nil] new_expires_in
       #   The access token lifetime.
+      # @param [String,Integer,Time, nil] new_issued_at
+      #   The access token issuance time.
       def expires_in=(new_expires_in, new_issued_at = nil)
         if new_expires_in != nil
           @issued_at = new_issued_at.nil? ? Time.now : normalize_timestamp(new_issued_at)
