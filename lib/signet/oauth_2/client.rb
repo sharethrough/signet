@@ -232,7 +232,7 @@ module Signet
         # set, but this can be used to supply a more precise time.
         if options.has_key?(:issued_at)
           self.issued_at = options[:issued_at]
-          send(:expires_in=, expires_in_option, options[:issued_at]) unless expires_in_option.nil?
+          send(:expires_in=, expires_in_option, self.issued_at) unless expires_in_option.nil?
         else
           self.expires_in = expires_in_option unless expires_in_option.nil?
         end
@@ -749,7 +749,7 @@ module Signet
       #   The access token lifetime.
       def expires_in=(new_expires_in, new_issued_at = nil)
         if new_expires_in != nil
-          @issued_at = new_issued_at || Time.now
+          @issued_at = new_issued_at.nil? ? Time.now : normalize_timestamp(new_issued_at)
           @expires_at = @issued_at + new_expires_in.to_i
         else
           @expires_at, @issued_at = nil, nil
